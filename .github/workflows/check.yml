@@ -13,5 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v1
+      - name : install dependencies
+        run: bun install --frozen-lockfile
       - name: check bun.lock / lint / format
         run:  bun run check
