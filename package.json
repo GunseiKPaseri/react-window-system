@@ -21,10 +21,13 @@
     "build:lockfile": "bun install",
     "build:dist": "vite build",
     "build:types": "tsc",
+    "fix": "bun run fix:format && bun run fix:lint",
+    "fix:format": "bunx @biomejs/biome format --write ./src",
+    "fix:lint": "bunx @biomejs/biome check --apply ./src",
     "check": "bun run check:biome && bun run check:eslint && bun run check:lockfile",
     "check:lockfile": "diff <(bun bun.lockb) yarn.lock",
-    "check:biome": "bunx @biomejs/biome check --apply ./src/index.ts",
-    "check:eslint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "check:biome": "bunx @biomejs/biome check --apply ./src",
+    "check:eslint": "bunx eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {

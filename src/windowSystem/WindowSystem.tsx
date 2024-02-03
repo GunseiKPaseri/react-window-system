@@ -65,7 +65,7 @@ function BigWindowSuggester(
         ...bigWindowSize({ bigWindow, padding: "5px" }),
         ...divProps.style,
       }}
-    ></div>
+    />
   );
 }
 
