@@ -1,0 +1,48 @@
+{
+  "name": "react-window-system",
+  "description": "A window system for React",
+  "author": "GunseiKPaseri",
+  "license": "MIT",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.umd.cjs",
+  "module": "dist/index.js",
+  "types": "types/src/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.umd.cjs",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "pre-commit": "bun run check && bun run build",
+    "build": "bun run build:lockfile && bun run build:dist && bun run build:types",
+    "build:lockfile": "bun install",
+    "build:dist": "vite build",
+    "build:types": "tsc",
+    "check": "bun run check:biome && bun run check:eslint && bun run check:lockfile",
+    "check:lockfile": "diff <(bun bun.lockb) yarn.lock",
+    "check:biome": "bunx @biomejs/biome check --apply ./src/index.ts",
+    "check:eslint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-rnd": "^10.4.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.4.1",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
+  }
+}
