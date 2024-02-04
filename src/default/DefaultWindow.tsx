@@ -6,7 +6,6 @@ export const DefaultWindow = (props: WindowUIProps) => {
   return (
     <Window
       {...WindowAttr}
-      window={window}
       style={{
         position: "absolute",
         zIndex: window.layerIndex,
@@ -28,7 +27,7 @@ export const DefaultWindow = (props: WindowUIProps) => {
         </Window.TitleBar.Title>
         <Window.TitleBar.MinimizeButton>_</Window.TitleBar.MinimizeButton>
         <Window.TitleBar.MaximizeButton>
-          {window.maximize === "full" ? "❒" : "□"}
+          {window.maximize ? "❒" : "□"}
         </Window.TitleBar.MaximizeButton>
         <Window.TitleBar.CloseButton>×</Window.TitleBar.CloseButton>
       </Window.TitleBar>

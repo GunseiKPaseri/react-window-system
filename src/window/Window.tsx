@@ -82,6 +82,13 @@ export function Window(props: RndProps) {
         gridTemplateColumns: "1fr",
         ...props.style,
       }}
+      onResize={(_e, _dir, ref, _delta, _position) => {
+        resizeWindow({
+          ...windowPos,
+          width: ref.style.width,
+          height: ref.style.height,
+        });
+      }}
       onResizeStop={(_e, _d, ref) => {
         resizeWindow({
           ...windowPos,
@@ -90,6 +97,7 @@ export function Window(props: RndProps) {
         });
       }}
       onDrag={(_e, dir) => {
+        resizeWindow({ ...windowPos, x: dir.x, y: dir.y });
         if (windowAreaNode === null) return;
         const position = dragPosition({
           top: dir.y,

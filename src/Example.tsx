@@ -7,10 +7,14 @@ const WindowBody = () => {
   const { windowPos } = useWindow();
   return (
     <>
+      {`x: ${windowPos.x}, y: ${windowPos.y}`}
+      <br />
       {`${windowPos.width} x ${windowPos.height}`}
       <br />
       冬の朝、雪が降り積もる庭で、小さな鳥たちが飛び跳ねています。白い雪の上に、彼らの足跡がくっきりと残ります。寒さに耐えながら、彼らは飛び立つ瞬間を待っているようです。風が冷たく、木々は凍りついていますが、鳥たちは生命力に満ちています。その小さな翼は、自由を求めて空に向かって伸びています。
       この冬の朝、私たちは鳥たちから学ぶことができます。寒さや困難にもかかわらず、彼らは飛び立つ勇気を持っています。私たちも同じように、自分の夢や目標に向かって進む勇気を持ちましょう。雪の中で足跡を残すように、私たちも自分の人生に意味を刻みましょう。
+      <br />
+      <button type="button">Good</button>
     </>
   );
 };
@@ -24,7 +28,7 @@ const makeWindow = (id: number) => {
       height: 200,
       width: 200,
     },
-    header: `へっだ${id}`,
+    header: <strong>{`へっだ${id}`}</strong>,
     body: <WindowBody />,
   };
 };

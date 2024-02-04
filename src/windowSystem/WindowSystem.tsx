@@ -48,7 +48,6 @@ function BigWindowSuggester(
   props: React.HTMLAttributes<HTMLDivElement> & { bigWindow: BigWindow },
 ) {
   const { bigWindow, ...divProps } = props;
-  if (bigWindow === false) return <></>;
   const { layerQueue } = useWindowSystemState();
 
   return (
@@ -58,11 +57,14 @@ function BigWindowSuggester(
         position: "absolute",
         pointerEvents: "none",
         zIndex: layerQueue.length,
-        backgroundColor: "rgba(0, 0, 0, 0.2)",
+        transition: "0.1s",
+        backgroundColor: `rgba(100, 100, 100, ${bigWindow ? 0.2 : 0})`,
         backdropFilter: "blur(5px)",
         margin: "5px",
         borderRadius: "5px",
-        ...bigWindowSize({ bigWindow, padding: "5px" }),
+        ...(bigWindow
+          ? bigWindowSize({ bigWindow, padding: "5px" })
+          : { top: "50%", left: "50%", width: 0, height: 0 }),
         ...divProps.style,
       }}
     />
@@ -157,7 +159,9 @@ export function WindowSystem(props: WindowSystemProps) {
                   ...windowExpAttr,
                   [w.id]: {
                     ...getdefaultWindowExpAttr(windowExpAttr, w),
-                    ...(bigWindow ? { maximize: bigWindow } : { ...windowPos }),
+                    ...(bigWindow
+                      ? { maximize: bigWindow }
+                      : { windowPos: { ...windowPos } }),
                   },
                 }));
               }}
