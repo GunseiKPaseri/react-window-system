@@ -1,5 +1,11 @@
 # 🪟 React Window System
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=square)](https://makeapullrequest.com)
+[![Created by GunseiKPaseri](https://img.shields.io/badge/created%20by-@GunseiKPaseri-00ACEE.svg)](https://twitter.com/GunseiKPaseri)
+[![npm version](https://img.shields.io/npm/v/react-window-system?logo=npm)](https://badge.fury.io/js/react-window-system)
+
+
 React Window System is a reproduction of the Window system using React. It provides a Window system.
 
 - maximize
@@ -9,6 +15,13 @@ React Window System is a reproduction of the Window system using React. It provi
 - Snap (like windows)
 
 ## How to use
+
+Demo: [CodeSandBox](https://codesandbox.io/p/sandbox/react-window-system-p75t2w) 
+
+```sh
+npm install react-window-system
+```
+
 
 See [Example.tsx](./src/Example.tsx)
 
