@@ -14,7 +14,10 @@ export default defineConfig({
       formats: ["es", "cjs"],
     },
     rollupOptions:{
-      external: [...Object.keys(pkg.peerDependencies)],
+      external: [
+        ...Object.keys(pkg.peerDependencies),
+        ...Object.keys(pkg.dependencies)
+      ],
       output:{
         preserveModules: true,
         exports: "named",
