@@ -1,0 +1,34 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - name : install dependencies
+        run: bun install --frozen-lockfile
+      - name: check
+        run: bun run check
+      - name: build
+        run:  bun run build
+      - uses: actions/setup-node@v3
+        with:
+          node-version: v20.x
+          registry-url: https://registry.npmjs.org/
+      - name: Get latest version
+        id: get_version
+        run: |
+          LATEST_VERSION=$(git tag --sort=-creatordate | head -1)
+          echo ::set-output name=LATEST_VERSION::$LATEST_VERSION
+      - name: Update package.json
+        run: |
+          npm --no-git-tag-version version ${{ steps.get_version.outputs.LATEST_VERSION }}
+      - name: publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
