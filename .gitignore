@@ -27,3 +27,6 @@ dist-ssr
 *.tgz
 
 stats.html
+storybook-static/*
+
+*storybook.log

@@ -3,7 +3,13 @@ import { useEffect, useId, useRef, useState } from "react";
 import { DefaultTaskBar } from "../default/DefaultTaskBar";
 import { DefaultWindow } from "../default/DefaultWindow";
 import { WindowTaskContext } from "../taskbar/taskcontext";
-import { bigWindowSize, bringToFront, updateLayerQueue } from "../util";
+import {
+  bigWindowSize,
+  bringToFront,
+  calcLayerIndex,
+  getdefaultWindowExpAttr,
+  updateLayerQueue,
+} from "../util";
 import { Window } from "../window/Window";
 import { WindowProvider } from "../window/WindowProvider";
 import {
@@ -14,28 +20,8 @@ import type {
   BigWindow,
   WindowAttr,
   WindowExpAttr,
-  WindowState,
   WindowUIProps,
 } from "./type";
-
-const getdefaultWindowExpAttr = (
-  windowExpAttrRecord: Record<string, WindowExpAttr | undefined>,
-  w: WindowAttr | string,
-): WindowExpAttr =>
-  windowExpAttrRecord[typeof w === "string" ? w : w.id] ?? {
-    closed: false,
-    maximize: false,
-    minimize: false,
-    windowPos:
-      typeof w === "string"
-        ? {
-            x: 0,
-            y: 0,
-            width: 200,
-            height: 200,
-          }
-        : w.defaultWindowPos,
-  };
 
 type WindowSystemProps = {
   windows: WindowAttr[];
@@ -106,16 +92,8 @@ export function WindowSystem(props: WindowSystemProps) {
   }, [windows, layerQueue]);
 
   // calculate layer
-  const windowState: WindowState[] = existWindows.map((x) => {
-    const layerIndex = layerQueue.findIndex((layer) => x.id === layer);
-    const isActive = layerIndex === layerQueue.length - 1;
-    return {
-      ...x,
-      ...getdefaultWindowExpAttr(windowExpAttr, x),
-      layerIndex: isActive ? layerQueue.length + 10 : layerIndex,
-      isActive,
-    };
-  });
+  const windowState = calcLayerIndex(layerQueue, existWindows, windowExpAttr);
+
   const windowAreaNodeRef = useRef<HTMLDivElement>(null);
   const windowProviderNodeRef = useRef<HTMLDivElement>(null);
 

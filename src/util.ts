@@ -1,4 +1,46 @@
-import type { BigWindow, WindowAttr } from "./windowSystem/type";
+import type {
+  BigWindow,
+  WindowAttr,
+  WindowExpAttr,
+  WindowState,
+} from "./windowSystem/type";
+
+// 初期値を適用してウィンドウの状態を返す
+export const getdefaultWindowExpAttr = (
+  windowExpAttrRecord: Record<string, WindowExpAttr | undefined>,
+  w: WindowAttr | string,
+): WindowExpAttr =>
+  windowExpAttrRecord[typeof w === "string" ? w : w.id] ?? {
+    closed: false,
+    maximize: false,
+    minimize: false,
+    windowPos:
+      typeof w === "string"
+        ? {
+            x: 0,
+            y: 0,
+            width: 200,
+            height: 200,
+          }
+        : w.defaultWindowPos,
+  };
+
+// レイヤーを計算する
+export const calcLayerIndex = (
+  layerQueue: string[],
+  existWindows: WindowAttr[],
+  windowExpAttr: Record<string, WindowExpAttr | undefined>,
+): WindowState[] =>
+  existWindows.map((x) => {
+    const layerIndex = layerQueue.findIndex((layer) => x.id === layer);
+    const isActive = layerIndex === layerQueue.length - 1;
+    return {
+      ...x,
+      ...getdefaultWindowExpAttr(windowExpAttr, x),
+      layerIndex: isActive ? layerQueue.length + 10 : layerIndex,
+      isActive,
+    };
+  });
 
 // 追加されたウィンドウを最前面に持ってくる
 export const updateLayerQueue = (
