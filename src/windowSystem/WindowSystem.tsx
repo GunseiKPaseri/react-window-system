@@ -4,7 +4,7 @@ import { DefaultTaskBar } from "../default/DefaultTaskBar";
 import { DefaultWindow } from "../default/DefaultWindow";
 import { WindowTaskContext } from "../taskbar/taskcontext";
 import {
-  bigWindowSize,
+  bigWindowSizeAsCSS,
   bringToFront,
   calcLayerIndex,
   getdefaultWindowExpAttr,
@@ -49,7 +49,7 @@ function BigWindowSuggester(
         margin: "5px",
         borderRadius: "5px",
         ...(bigWindow
-          ? bigWindowSize({ bigWindow, padding: "5px" })
+          ? bigWindowSizeAsCSS({ bigWindow, margin: "5px" })
           : { top: "50%", left: "50%", width: 0, height: 0 }),
         ...divProps.style,
       }}
@@ -92,7 +92,11 @@ export function WindowSystem(props: WindowSystemProps) {
   }, [windows, layerQueue]);
 
   // calculate layer
-  const windowState = calcLayerIndex(layerQueue, existWindows, windowExpAttr);
+  const windowExpAttrWithLayer = calcLayerIndex(
+    layerQueue,
+    existWindows,
+    windowExpAttr,
+  );
 
   const windowAreaNodeRef = useRef<HTMLDivElement>(null);
   const windowProviderNodeRef = useRef<HTMLDivElement>(null);
@@ -122,7 +126,7 @@ export function WindowSystem(props: WindowSystemProps) {
           ref={windowAreaNodeRef}
           style={{ height: "100%", position: "relative" }}
         >
-          {windowState.map((w) => (
+          {windowExpAttrWithLayer.map((w) => (
             <WindowProvider
               key={w.id}
               state={w}
@@ -132,14 +136,12 @@ export function WindowSystem(props: WindowSystemProps) {
               bigWindowSuggest={(w: { bigWindow: BigWindow }) => {
                 setBigWindowSuggestion(w.bigWindow);
               }}
-              resizeWindow={(windowPos, bigWindow) => {
+              changeWindowExpAttrWithLayer={(state) => {
                 setWindowExpAttr((windowExpAttr) => ({
                   ...windowExpAttr,
                   [w.id]: {
                     ...getdefaultWindowExpAttr(windowExpAttr, w),
-                    ...(bigWindow
-                      ? { maximize: bigWindow }
-                      : { windowPos: { ...windowPos } }),
+                    ...state,
                   },
                 }));
               }}
@@ -187,7 +189,7 @@ export function WindowSystem(props: WindowSystemProps) {
         </div>
         <WindowTaskContext.Provider
           value={{
-            windows: windowState,
+            windows: windowExpAttrWithLayer,
             activateWindow: (id) => {
               setLayerQueue((layerQueue) => bringToFront(layerQueue, id));
               if (windowExpAttr[id]?.minimize) {

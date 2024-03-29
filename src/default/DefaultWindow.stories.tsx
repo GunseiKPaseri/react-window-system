@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { WindowOnly } from "../util/WindowOnly";
-import type { WindowState } from "../windowSystem/type";
+import type { WindowExpAttrWithLayer } from "../windowSystem/type";
 //import { fn } from '@storybook/test';
 import { DefaultWindow } from "./DefaultWindow";
 
-const WrappedDefaultWindow = (props: WindowState) => (
+const WrappedDefaultWindow = (props: WindowExpAttrWithLayer) => (
   <WindowOnly window={props}>
     <DefaultWindow window={props} />
   </WindowOnly>
@@ -79,11 +79,5 @@ export const Default: Story = {
     closed: false,
     maximize: false,
     minimize: false,
-    windowPos: {
-      x: 50,
-      y: 50,
-      width: 300,
-      height: 300,
-    },
   },
 };

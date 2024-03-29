@@ -1,7 +1,7 @@
-import React, { type ReactNode } from "react";
+import React, { type ReactNode, useEffect, useRef } from "react";
 import { Rnd } from "react-rnd";
 import type { Props as RndProps } from "react-rnd";
-import { bigWindowSize } from "../util";
+import { bigWindowSizeAsNum } from "../util";
 import type { BigWindow } from "../windowSystem/type";
 import { useWindow } from "./windowcontext";
 
@@ -55,27 +55,45 @@ export function Window(props: RndProps) {
     maximize,
     minimize,
     bigWindowSuggest,
-    resizeWindow,
+    changeWindowExpAttrWithLayer,
     windowAreaNode,
+    setIsDragging,
+    windowPosBeforeMaximize,
+    setWindowPos,
+    setWindowPosBeforeMaximize,
   } = useWindow();
   if (minimize) return <></>;
-  return maximize ? (
-    <div
-      onMouseDown={activateWindow}
-      style={{
-        display: "grid",
-        gridTemplateRows: "auto 1fr",
-        gridTemplateColumns: "1fr",
-        ...props.style,
-        ...bigWindowSize({ bigWindow: maximize }),
-      }}
-    >
-      {props.children}
-    </div>
-  ) : (
+  const isWindowFixed = !(maximize === false || minimize);
+  const windowRef = useRef<Rnd>(null);
+  useEffect(() => {
+    if (minimize) {
+      windowRef.current?.updatePosition({ x: 0, y: 0 });
+      windowRef.current?.updateSize({ width: 0, height: 0 });
+      return;
+    }
+    if (maximize === false) {
+      windowRef.current?.updatePosition(windowPosBeforeMaximize);
+      windowRef.current?.updateSize(windowPosBeforeMaximize);
+      return;
+    }
+    const custom = bigWindowSizeAsNum({
+      bigWindow: maximize,
+      parentWidth: windowAreaNode?.clientWidth ?? 0,
+      parentHeight: windowAreaNode?.clientHeight ?? 0,
+      minimize,
+    });
+    if (!windowRef.current) return;
+
+    windowRef.current.updatePosition(custom);
+    windowRef.current.updateSize(custom);
+  }, [maximize, minimize, windowAreaNode, windowPosBeforeMaximize]);
+  return (
     <Rnd
+      ref={windowRef}
       {...props}
       onMouseDown={activateWindow}
+      disableDragging={isWindowFixed}
+      enableResizing={!isWindowFixed}
       style={{
         display: "grid",
         gridTemplateRows: "auto 1fr",
@@ -83,21 +101,25 @@ export function Window(props: RndProps) {
         ...props.style,
       }}
       onResize={(_e, _dir, ref, _delta, _position) => {
-        resizeWindow({
+        setWindowPos({
           ...windowPos,
           width: ref.style.width,
           height: ref.style.height,
         });
       }}
       onResizeStop={(_e, _d, ref) => {
-        resizeWindow({
+        setWindowPos({
           ...windowPos,
           width: ref.style.width,
           height: ref.style.height,
         });
       }}
+      onDragStart={() => {
+        setIsDragging(true);
+        setWindowPosBeforeMaximize(windowPos);
+      }}
       onDrag={(_e, dir) => {
-        resizeWindow({ ...windowPos, x: dir.x, y: dir.y });
+        setWindowPos({ ...windowPos, x: dir.x, y: dir.y });
         if (windowAreaNode === null) return;
         const position = dragPosition({
           top: dir.y,
@@ -119,8 +141,13 @@ export function Window(props: RndProps) {
                   windowAreaNode.clientHeight - (dir.y + dir.node.offsetHeight),
               })
             : false;
-        resizeWindow({ ...windowPos, x: dir.x, y: dir.y }, position);
+        if (position) {
+          changeWindowExpAttrWithLayer({ maximize: position });
+        } else {
+          setWindowPos({ ...windowPos, x: dir.x, y: dir.y });
+        }
         bigWindowSuggest({ bigWindow: false });
+        setIsDragging(false);
       }}
       default={windowPos}
       minWidth={60}
@@ -134,13 +161,16 @@ export function Window(props: RndProps) {
 }
 
 function MinimizeButton(props: React.HTMLAttributes<HTMLButtonElement>) {
-  const { minimizeWindow, id, wsId } = useWindow();
+  const { minimizeWindow, id, wsId, isDragging } = useWindow();
   return (
     <button
       {...props}
       type="button"
       id={`${wsId}-window-${id}-maximizebutton`}
-      onMouseUp={minimizeWindow}
+      onClick={() => {
+        if (isDragging) return;
+        minimizeWindow();
+      }}
       style={{
         width: 30,
         userSelect: "none",
@@ -151,13 +181,27 @@ function MinimizeButton(props: React.HTMLAttributes<HTMLButtonElement>) {
 }
 
 function MaximizeButton(props: React.HTMLAttributes<HTMLButtonElement>) {
-  const { maximizeWindow, id, wsId } = useWindow();
+  const {
+    maximizeWindow,
+    id,
+    wsId,
+    isDragging,
+    maximize,
+    setWindowPos,
+    windowPosBeforeMaximize,
+  } = useWindow();
   return (
     <button
       {...props}
       type="button"
       id={`${wsId}-window-${id}-maximizebutton`}
-      onMouseUp={maximizeWindow}
+      onClick={() => {
+        if (isDragging) return;
+        if (maximize !== false) {
+          setWindowPos(windowPosBeforeMaximize);
+        }
+        maximizeWindow();
+      }}
       style={{
         width: 30,
         userSelect: "none",
@@ -168,13 +212,16 @@ function MaximizeButton(props: React.HTMLAttributes<HTMLButtonElement>) {
 }
 
 function CloseButton(props: React.HTMLAttributes<HTMLButtonElement>) {
-  const { closeWindow, id, wsId } = useWindow();
+  const { closeWindow, id, wsId, isDragging } = useWindow();
   return (
     <button
       {...props}
       type="button"
       id={`${wsId}-window-${id}-closebutton`}
-      onMouseUp={closeWindow}
+      onClick={() => {
+        if (isDragging) return;
+        closeWindow();
+      }}
       style={{
         width: 30,
         userSelect: "none",

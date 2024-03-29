@@ -1,8 +1,9 @@
+import React from "react";
 import type {
   BigWindow,
   WindowAttr,
   WindowExpAttr,
-  WindowState,
+  WindowExpAttrWithLayer,
 } from "./windowSystem/type";
 
 // 初期値を適用してウィンドウの状態を返す
@@ -14,15 +15,6 @@ export const getdefaultWindowExpAttr = (
     closed: false,
     maximize: false,
     minimize: false,
-    windowPos:
-      typeof w === "string"
-        ? {
-            x: 0,
-            y: 0,
-            width: 200,
-            height: 200,
-          }
-        : w.defaultWindowPos,
   };
 
 // レイヤーを計算する
@@ -30,7 +22,7 @@ export const calcLayerIndex = (
   layerQueue: string[],
   existWindows: WindowAttr[],
   windowExpAttr: Record<string, WindowExpAttr | undefined>,
-): WindowState[] =>
+): WindowExpAttrWithLayer[] =>
   existWindows.map((x) => {
     const layerIndex = layerQueue.findIndex((layer) => x.id === layer);
     const isActive = layerIndex === layerQueue.length - 1;
@@ -65,78 +57,93 @@ export const bringToFront = (layerQueue: string[], windowId: string) => {
   return [...remainLayerQueue, windowId];
 };
 
-// BigWindow型からCSSのプロパティを返す
-export const bigWindowSize = (props: {
-  bigWindow: BigWindow;
-  padding?: string;
-}):
-  | Pick<React.CSSProperties, "top" | "left" | "width" | "height">
-  | Record<never, never> => {
-  const { bigWindow, padding = "0px" } = props;
+const bigWindowSizeCore = (
+  bigWindow: BigWindow,
+  minimize?: boolean,
+): {
+  top: "full" | "half" | "none";
+  left: "full" | "half" | "none";
+  width: "full" | "half" | "none";
+  height: "full" | "half" | "none";
+} => {
+  if (minimize)
+    return { top: "none", left: "none", width: "none", height: "none" };
   switch (bigWindow) {
     case "full":
-      return {
-        top: 0,
-        left: 0,
-        width: `calc(100% - ${padding} - ${padding})`,
-        height: `calc(100% - ${padding} - ${padding})`,
-      };
+      return { top: "none", left: "none", width: "full", height: "full" };
     case "bottom-left":
-      return {
-        top: "50%",
-        left: 0,
-        width: `calc(50% - ${padding} - ${padding})`,
-        height: `calc(50% - ${padding} - ${padding})`,
-      };
+      return { top: "half", left: "none", width: "half", height: "half" };
     case "bottom-right":
-      return {
-        top: "50%",
-        left: "50%",
-        width: `calc(50% - ${padding} - ${padding})`,
-        height: `calc(50% - ${padding} - ${padding})`,
-      };
+      return { top: "half", left: "half", width: "half", height: "half" };
     case "top-left":
-      return {
-        top: 0,
-        left: 0,
-        width: `calc(50% - ${padding} - ${padding})`,
-        height: `calc(50% - ${padding} - ${padding})`,
-      };
+      return { top: "none", left: "none", width: "half", height: "half" };
     case "top-right":
-      return {
-        top: 0,
-        left: "50%",
-        width: `calc(50% - ${padding} - ${padding})`,
-        height: `calc(50% - ${padding} - ${padding})`,
-      };
+      return { top: "none", left: "half", width: "half", height: "half" };
     case "left":
-      return {
-        top: 0,
-        left: 0,
-        width: `calc(50% - ${padding} - ${padding})`,
-        height: `calc(100% - ${padding} - ${padding})`,
-      };
+      return { top: "none", left: "none", width: "half", height: "full" };
     case "right":
-      return {
-        top: 0,
-        left: "50%",
-        width: `calc(50% - ${padding} - ${padding})`,
-        height: `calc(100% - ${padding} - ${padding})`,
-      };
+      return { top: "none", left: "half", width: "half", height: "full" };
     case "top":
-      return {
-        top: 0,
-        left: 0,
-        width: `calc(100% - ${padding} - ${padding})`,
-        height: `calc(50% - ${padding} - ${padding})`,
-      };
+      return { top: "none", left: "none", width: "full", height: "half" };
     case "bottom":
-      return {
-        top: "50%",
-        left: 0,
-        width: `calc(100% - ${padding} - ${padding})`,
-        height: `calc(50% - ${padding} - ${padding})`,
-      };
+      return { top: "half", left: "none", width: "full", height: "half" };
+    default:
+      return { top: "none", left: "none", width: "none", height: "none" };
   }
-  return {};
+};
+
+const sizeCoreToNum = (
+  size: "full" | "half" | "none",
+  parentNum: number,
+  margin: number,
+) =>
+  size === "full"
+    ? parentNum - margin * 2
+    : size === "half"
+      ? parentNum / 2 - margin * 2
+      : 0;
+
+export const bigWindowSizeAsNum = (props: {
+  bigWindow: BigWindow;
+  parentWidth: number;
+  parentHeight: number;
+  margin?: number;
+  minimize?: boolean;
+}) => {
+  const size = bigWindowSizeCore(props.bigWindow, props.minimize);
+  return {
+    y: sizeCoreToNum(size.top, props.parentHeight, props.margin ?? 0),
+    x: sizeCoreToNum(size.left, props.parentWidth, props.margin ?? 0),
+    width: sizeCoreToNum(size.width, props.parentWidth, props.margin ?? 0),
+    height: sizeCoreToNum(size.height, props.parentHeight, props.margin ?? 0),
+  };
+};
+
+const sizeCoreToCSS = (size: "full" | "half" | "none") =>
+  size === "full" ? "100%" : size === "half" ? "50%" : 0;
+const sizeCoreToCSSWithMargin = (
+  size: "full" | "half" | "none",
+  margin: string | number,
+) =>
+  size === "full"
+    ? `calc(100% - ${margin} - ${margin})`
+    : size === "half"
+      ? `calc(50% - ${margin} - ${margin})`
+      : 0;
+
+// BigWindow型からCSSのプロパティを返す
+export const bigWindowSizeAsCSS = (props: {
+  bigWindow: BigWindow;
+  margin?: string | number;
+  minimize?: boolean;
+}): Required<
+  Pick<React.CSSProperties, "top" | "left" | "width" | "height">
+> => {
+  const size = bigWindowSizeCore(props.bigWindow, props.minimize);
+  return {
+    top: sizeCoreToCSS(size.top),
+    left: sizeCoreToCSS(size.left),
+    width: sizeCoreToCSSWithMargin(size.width, props.margin ?? 0),
+    height: sizeCoreToCSSWithMargin(size.height, props.margin ?? 0),
+  };
 };

@@ -1,18 +1,18 @@
 import { useRef } from "react";
 import { WindowProvider } from "..";
-import { WindowControler } from "../window/windowcontext";
+import type { WindowSystemControler } from "../window/windowcontext";
 import { WindowSystemContext } from "../windowSystem/WindowSystemProvider";
-import type { WindowState } from "../windowSystem/type";
+import type { WindowExpAttrWithLayer } from "../windowSystem/type";
 
 type WindowOnlyProps = {
-  window: WindowState;
+  window: WindowExpAttrWithLayer;
   children: JSX.Element;
 };
 
-const emptyWindowControler: WindowControler = {
+const emptyWindowSystemControler: WindowSystemControler = {
   activateWindow: () => {},
   bigWindowSuggest: () => {},
-  resizeWindow: () => {},
+  changeWindowExpAttrWithLayer: () => {},
   closeWindow: () => {},
   maximizeWindow: () => {},
   minimizeWindow: () => {},
@@ -37,7 +37,7 @@ export function WindowOnly(props: WindowOnlyProps) {
         ref={windowAreaNodeRef}
         style={{ width: 400, height: 400, position: "relative" }}
       >
-        <WindowProvider {...emptyWindowControler} state={props.window}>
+        <WindowProvider {...emptyWindowSystemControler} state={props.window}>
           {props.children}
         </WindowProvider>
       </div>

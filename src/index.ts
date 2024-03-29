@@ -3,7 +3,7 @@ export type {
   BigWindow,
   WindowAttr,
   WindowExpAttr,
-  WindowState,
+  WindowExpAttrWithLayer,
   WindowUIProps,
 } from "./windowSystem/type";
 export { WindowProvider } from "./window/WindowProvider";

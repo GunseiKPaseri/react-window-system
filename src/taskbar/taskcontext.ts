@@ -1,8 +1,8 @@
 import { createContext, useContext } from "react";
-import type { WindowState } from "../windowSystem/type";
+import type { WindowExpAttrWithLayer } from "../windowSystem/type";
 
 type WindowTaskContextType = {
-  windows: WindowState[];
+  windows: WindowExpAttrWithLayer[];
   closeWindow: (id: string) => void;
   activateWindow: (id: string) => void;
 };
@@ -19,7 +19,7 @@ export const useWindowTaskBar = () => {
 };
 
 type WindowTaskItemContextType = {
-  w: WindowState;
+  w: WindowExpAttrWithLayer;
 };
 
 export const WindowTaskItemContext = createContext<

@@ -1,9 +1,9 @@
-import type { WindowState } from "../windowSystem/type";
+import type { WindowExpAttrWithLayer } from "../windowSystem/type";
 import { useWindowTaskBar, useWindowTaskItem } from "./taskcontext";
 import { WindowTaskItemContext } from "./taskcontext";
 
 function TaskList(
-  props: React.HTMLAttributes<HTMLLIElement> & { w: WindowState },
+  props: React.HTMLAttributes<HTMLLIElement> & { w: WindowExpAttrWithLayer },
 ) {
   const { w, ...liProps } = props;
   const { activateWindow } = useWindowTaskBar();

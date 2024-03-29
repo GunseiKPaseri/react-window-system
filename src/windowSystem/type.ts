@@ -21,20 +21,20 @@ export type BigWindow =
   | "bottom-right"
   | false;
 
+// WindowSystemが管理する拡張設定
 export type WindowExpAttr = {
   closed: boolean;
   maximize: BigWindow;
   minimize: boolean;
-  windowPos: NonNullable<RndProps["default"]>;
 };
 
-// Windowの状態
-export type WindowState = WindowAttr &
+// レイヤー設定を反映したもの
+export type WindowExpAttrWithLayer = WindowAttr &
   WindowExpAttr & {
     layerIndex: number;
     isActive: boolean;
   };
 
 export type WindowUIProps = {
-  window: WindowState;
+  window: WindowExpAttrWithLayer;
 } & RndProps;
