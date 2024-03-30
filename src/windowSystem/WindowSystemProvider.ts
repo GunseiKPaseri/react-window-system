@@ -5,6 +5,7 @@ type WindowSystemContextType = {
   windowProviderNode: HTMLDivElement | null;
   layerQueue: string[];
   wsId: string;
+  windowTransitionTime: number;
 };
 
 export const WindowSystemContext = createContext<

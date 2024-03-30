@@ -6,7 +6,6 @@ export type {
   WindowExpAttrWithLayer,
   WindowUIProps,
 } from "./windowSystem/type";
-export { WindowProvider } from "./window/WindowProvider";
 export { Window } from "./window/Window";
 export { TaskBar } from "./taskbar/TaskBar";
 

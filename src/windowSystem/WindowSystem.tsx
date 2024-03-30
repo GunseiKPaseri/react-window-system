@@ -22,11 +22,14 @@ import type {
   WindowUIProps,
 } from "./type";
 
+const defaultTransitionTime = 100;
+
 type WindowSystemProps = {
   windows: WindowAttr[];
   Window?: (props: WindowUIProps) => JSX.Element;
   TaskBar?: (props: React.HTMLAttributes<HTMLUListElement>) => JSX.Element;
   onWindowChange?: (windows: WindowAttr[]) => void;
+  windowTransitionTime?: number;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 function BigWindowSuggester(
@@ -62,6 +65,7 @@ export function WindowSystem(props: WindowSystemProps) {
     Window = DefaultWindow,
     TaskBar = DefaultTaskBar,
     onWindowChange,
+    windowTransitionTime = defaultTransitionTime,
     ...windowAreaProps
   } = props;
   const [layerQueue, setLayerQueue] = useState<string[]>([]);
@@ -105,6 +109,7 @@ export function WindowSystem(props: WindowSystemProps) {
       value={{
         layerQueue,
         wsId,
+        windowTransitionTime,
         windowAreaNode: windowAreaNodeRef.current,
         windowProviderNode: windowProviderNodeRef.current,
       }}
@@ -131,7 +136,7 @@ export function WindowSystem(props: WindowSystemProps) {
               state={w}
               ctrl={{
                 activateWindow: () => {
-                  setLayerQueue((layerQueue) => bringToFront(layerQueue, w.id))
+                  setLayerQueue((layerQueue) => bringToFront(layerQueue, w.id));
                 },
                 bigWindowSuggest: (w: { bigWindow: BigWindow }) => {
                   setBigWindowSuggestion(w.bigWindow);

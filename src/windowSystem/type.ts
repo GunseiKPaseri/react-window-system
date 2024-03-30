@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { Props as RndProps } from "react-rnd";
-import { WindowSystemControler } from "../window/windowcontext";
+import type { WindowSystemControler } from "../window/windowcontext";
 
 // Windowの設定可能なオプション
 export type WindowAttr = {
@@ -38,5 +38,5 @@ export type WindowExpAttrWithLayer = WindowAttr &
 
 export type WindowUIProps = {
   window: WindowExpAttrWithLayer;
-  ctrl: WindowSystemControler;
+  ctrl?: WindowSystemControler;
 } & RndProps;
