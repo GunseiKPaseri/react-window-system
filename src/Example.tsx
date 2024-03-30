@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useWindow } from "./window/windowcontext";
 import { WindowSystem } from "./windowSystem/WindowSystem";
-import { type WindowAttr } from "./windowSystem/type";
+import type { WindowAttr } from "./windowSystem/type";
 
 const WindowBody = () => {
   const { windowPos } = useWindow();

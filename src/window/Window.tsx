@@ -1,4 +1,5 @@
-import React, { type ReactNode, useEffect, useRef } from "react";
+import type React from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { Rnd } from "react-rnd";
 import type { Props as RndProps } from "react-rnd";
 import { bigWindowSizeAsNum } from "../util";
