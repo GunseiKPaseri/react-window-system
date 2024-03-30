@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { Props as RndProps } from "react-rnd";
+import type { Rnd, Props as RndProps } from "react-rnd";
 import { useWindowSystemState } from "../windowSystem/WindowSystemProvider";
 import type {
   BigWindow,
@@ -25,6 +25,7 @@ export type WindowState = {
   isDragging: boolean;
   setIsDragging: (isDragging: boolean) => void;
   windowPosBeforeMaximize: WindowPos;
+  windowNode: Rnd | null;
 };
 
 type WindowContextType = WindowExpAttrWithLayer &

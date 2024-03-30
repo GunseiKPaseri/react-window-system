@@ -1,10 +1,10 @@
 import type React from "react";
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
-import type { Props as RndProps } from "react-rnd";
 import { bigWindowSizeAsNum } from "../util";
-import type { BigWindow } from "../windowSystem/type";
-import { useWindow } from "./windowcontext";
+import type { BigWindow, WindowUIProps } from "../windowSystem/type";
+import { WindowContext, type WindowState, useWindow } from "./windowcontext";
+import { useWindowSystemState } from "../windowSystem/WindowSystemProvider";
 
 const cancelSelector = (wsId: string, id: string) => {
   const escapeWsId = CSS.escape(wsId);
@@ -47,22 +47,57 @@ const dragPosition = (position: {
   return false;
 };
 
-export function Window(props: RndProps) {
+export function Window(props: WindowUIProps) {
   const {
-    windowPos,
+    window,
+    ctrl,
+    children,
+    ...RndProps
+  } = props;
+  const {
     id,
-    wsId,
-    activateWindow,
-    maximize,
     minimize,
+    maximize,
+    defaultWindowPos,
+  } = window;
+  const {
+    activateWindow,
+    maximizeWindow: maximizeWindowCore,
+    minimizeWindow,
     bigWindowSuggest,
     changeWindowExpAttrWithLayer,
+  } = ctrl;
+  const {
     windowAreaNode,
-    setIsDragging,
-    windowPosBeforeMaximize,
-    setWindowPos,
-  } = useWindow();
-  if (minimize) return <></>;
+    wsId,
+  } = useWindowSystemState();
+  const [isDragging, setIsDragging] = useState(false);
+  const [windowPos, setWindowPosCore] = useState(defaultWindowPos);
+  const [windowPosBeforeMaximize, setWindowPosBeforeMaximize] = useState(
+    defaultWindowPos,
+  );
+  const maximizeWindow = (newMaximize?: BigWindow) => {
+    const newMaximizeState = newMaximize ?? (maximize ? false : "full");
+    if (newMaximizeState) {
+      const maximizedSize = bigWindowSizeAsNum({
+        bigWindow: newMaximizeState,
+        parentWidth: windowAreaNode?.clientWidth ?? 0,
+        parentHeight: windowAreaNode?.clientHeight ?? 0,
+        minimize: minimize,
+      });
+      setWindowPosCore(maximizedSize);
+    } else {
+      setWindowPosCore(windowPosBeforeMaximize);
+    }
+    maximizeWindowCore(newMaximize);
+  };
+  const setWindowPos: WindowState["setWindowPos"] = (props) => {
+    const { dragging, ...newWindowPos } = props;
+    if (!dragging) {
+      setWindowPosBeforeMaximize(newWindowPos);
+    }
+    setWindowPosCore(newWindowPos);
+  };
   const isWindowFixed = !(maximize === false || minimize);
   const windowRef = useRef<Rnd>(null);
   useEffect(() => {
@@ -87,10 +122,11 @@ export function Window(props: RndProps) {
     windowRef.current.updatePosition(maximizedSize);
     windowRef.current.updateSize(maximizedSize);
   }, [maximize, minimize, windowAreaNode, windowPosBeforeMaximize]);
+  if (minimize) return <></>;
   return (
     <Rnd
       ref={windowRef}
-      {...props}
+      {...RndProps}
       onMouseDown={activateWindow}
       disableDragging={isWindowFixed}
       enableResizing={!isWindowFixed}
@@ -100,17 +136,17 @@ export function Window(props: RndProps) {
         gridTemplateColumns: "1fr",
         ...props.style,
       }}
-      onResize={(_e, _dir, ref, _delta, _position) => {
+      onResize={(_e, _dir, ref, _delta, position) => {
         setWindowPos({
-          ...windowPos,
+          ...position,
           width: ref.style.width,
           height: ref.style.height,
           dragging: true,
         });
       }}
-      onResizeStop={(_e, _d, ref) => {
+      onResizeStop={(_e, _d, ref, _delta, position) => {
         setWindowPos({
-          ...windowPos,
+          ...position,
           width: ref.style.width,
           height: ref.style.height,
         });
@@ -155,7 +191,22 @@ export function Window(props: RndProps) {
       bounds="parent"
       cancel={cancelSelector(wsId, id)}
     >
-      {props.children}
+      <WindowContext.Provider
+        value={{
+          ...window,
+          ...ctrl,
+          maximizeWindow,
+          minimizeWindow,
+          isDragging,
+          setIsDragging,
+          windowPos,
+          setWindowPos,
+          windowPosBeforeMaximize,
+          windowNode: windowRef.current,
+        }}
+      >
+        {children}
+      </WindowContext.Provider>
     </Rnd>
   );
 }

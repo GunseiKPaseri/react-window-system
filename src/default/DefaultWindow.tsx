@@ -2,10 +2,10 @@ import { Window } from "../window/Window";
 import type { WindowUIProps } from "../windowSystem/type";
 
 export const DefaultWindow = (props: WindowUIProps) => {
-  const { window, ...WindowAttr } = props;
+  const { window } = props;
   return (
     <Window
-      {...WindowAttr}
+      {...props}
       style={{
         position: "absolute",
         zIndex: window.layerIndex,

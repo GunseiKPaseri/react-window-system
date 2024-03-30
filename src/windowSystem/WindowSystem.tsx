@@ -11,7 +11,6 @@ import {
   updateLayerQueue,
 } from "../util";
 import { Window } from "../window/Window";
-import { WindowProvider } from "../window/WindowProvider";
 import {
   WindowSystemContext,
   useWindowSystemState,
@@ -127,66 +126,67 @@ export function WindowSystem(props: WindowSystemProps) {
           style={{ height: "100%", position: "relative" }}
         >
           {windowExpAttrWithLayer.map((w) => (
-            <WindowProvider
+            <Window
               key={w.id}
               state={w}
-              activateWindow={() =>
-                setLayerQueue((layerQueue) => bringToFront(layerQueue, w.id))
-              }
-              bigWindowSuggest={(w: { bigWindow: BigWindow }) => {
-                setBigWindowSuggestion(w.bigWindow);
+              ctrl={{
+                activateWindow: () => {
+                  setLayerQueue((layerQueue) => bringToFront(layerQueue, w.id))
+                },
+                bigWindowSuggest: (w: { bigWindow: BigWindow }) => {
+                  setBigWindowSuggestion(w.bigWindow);
+                },
+                changeWindowExpAttrWithLayer: (state) => {
+                  setWindowExpAttr((windowExpAttr) => ({
+                    ...windowExpAttr,
+                    [w.id]: {
+                      ...getdefaultWindowExpAttr(windowExpAttr, w),
+                      ...state,
+                    },
+                  }));
+                },
+                closeWindow: () => {
+                  setLayerQueue((layerQueue) =>
+                    layerQueue.filter((id) => id !== w.id),
+                  );
+                  setWindowExpAttr((windowExpAttr) => ({
+                    ...windowExpAttr,
+                    [w.id]: {
+                      ...getdefaultWindowExpAttr(windowExpAttr, w),
+                      closed: true,
+                    },
+                  }));
+                  onWindowChange?.(
+                    windows.filter((w) => !windowExpAttr[w.id]?.closed),
+                  );
+                },
+                maximizeWindow: (newMaximize?: BigWindow) => {
+                  const maximize =
+                    newMaximize ??
+                    (windowExpAttr[w.id]?.maximize ? false : "full");
+                  setLayerQueue((layerQueue) => bringToFront(layerQueue, w.id));
+                  setWindowExpAttr((windowExpAttr) => ({
+                    ...windowExpAttr,
+                    [w.id]: {
+                      ...getdefaultWindowExpAttr(windowExpAttr, w),
+                      maximize,
+                    },
+                  }));
+                },
+                minimizeWindow: () => {
+                  setLayerQueue((layerQueue) => bringToFront(layerQueue, w.id));
+                  setWindowExpAttr((windowExpAttr) => ({
+                    ...windowExpAttr,
+                    [w.id]: {
+                      ...getdefaultWindowExpAttr(windowExpAttr, w),
+                      minimize: windowExpAttr[w.id]?.minimize ? false : true,
+                    },
+                  }));
+                },
+                hideWindow: () => undefined,
               }}
-              changeWindowExpAttrWithLayer={(state) => {
-                setWindowExpAttr((windowExpAttr) => ({
-                  ...windowExpAttr,
-                  [w.id]: {
-                    ...getdefaultWindowExpAttr(windowExpAttr, w),
-                    ...state,
-                  },
-                }));
-              }}
-              closeWindow={() => {
-                setLayerQueue((layerQueue) =>
-                  layerQueue.filter((id) => id !== w.id),
-                );
-                setWindowExpAttr((windowExpAttr) => ({
-                  ...windowExpAttr,
-                  [w.id]: {
-                    ...getdefaultWindowExpAttr(windowExpAttr, w),
-                    closed: true,
-                  },
-                }));
-                onWindowChange?.(
-                  windows.filter((w) => !windowExpAttr[w.id]?.closed),
-                );
-              }}
-              maximizeWindow={(newMaximize?: BigWindow) => {
-                const maximize =
-                  newMaximize ??
-                  (windowExpAttr[w.id]?.maximize ? false : "full");
-                setLayerQueue((layerQueue) => bringToFront(layerQueue, w.id));
-                setWindowExpAttr((windowExpAttr) => ({
-                  ...windowExpAttr,
-                  [w.id]: {
-                    ...getdefaultWindowExpAttr(windowExpAttr, w),
-                    maximize,
-                  },
-                }));
-              }}
-              minimizeWindow={() => {
-                setLayerQueue((layerQueue) => bringToFront(layerQueue, w.id));
-                setWindowExpAttr((windowExpAttr) => ({
-                  ...windowExpAttr,
-                  [w.id]: {
-                    ...getdefaultWindowExpAttr(windowExpAttr, w),
-                    minimize: windowExpAttr[w.id]?.minimize ? false : true,
-                  },
-                }));
-              }}
-              hideWindow={() => undefined}
-            >
-              <Window window={w} />
-            </WindowProvider>
+              window={w}
+            />
           ))}
           <BigWindowSuggester bigWindow={bigWindowSuggestion} />
         </div>

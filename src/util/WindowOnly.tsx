@@ -1,8 +1,8 @@
 import { useRef } from "react";
-import { WindowProvider } from "..";
 import type { WindowSystemControler } from "../window/windowcontext";
 import { WindowSystemContext } from "../windowSystem/WindowSystemProvider";
 import type { WindowExpAttrWithLayer } from "../windowSystem/type";
+import { Window } from "../window/Window";
 
 type WindowOnlyProps = {
   window: WindowExpAttrWithLayer;
@@ -37,9 +37,9 @@ export function WindowOnly(props: WindowOnlyProps) {
         ref={windowAreaNodeRef}
         style={{ width: 400, height: 400, position: "relative" }}
       >
-        <WindowProvider {...emptyWindowSystemControler} state={props.window}>
+        <Window ctrl={emptyWindowSystemControler} state={props.window} window={props.window}>
           {props.children}
-        </WindowProvider>
+        </Window>
       </div>
     </WindowSystemContext.Provider>
   );
