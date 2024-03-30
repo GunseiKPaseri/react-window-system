@@ -59,7 +59,8 @@ export function Window(props: WindowUIProps) {
     maximizeWindow: maximizeWindowCore = () => {},
     minimizeWindow: minimizeWindowCore = () => {},
   } = ctrl ?? {};
-  const { windowAreaNode, wsId, windowTransitionTime } = useWindowSystemState();
+  const { windowAreaNode, wsId, windowTransitionDuration, memorySavingMode } =
+    useWindowSystemState();
   const [animateFlag, setAnimateFlag] = useState(false);
   const [prevMinimize, setPrevMinimize] = useState(minimize);
   if (minimize !== prevMinimize) {
@@ -70,10 +71,10 @@ export function Window(props: WindowUIProps) {
     if (animateFlag) {
       const timeoutId = setTimeout(() => {
         setAnimateFlag(false);
-      }, windowTransitionTime);
+      }, windowTransitionDuration);
       return () => clearTimeout(timeoutId);
     }
-  }, [animateFlag, windowTransitionTime]);
+  }, [animateFlag, windowTransitionDuration]);
   const [isDragging, setIsDragging] = useState(false);
   const [windowPos, setWindowPosCore] = useState(defaultWindowPos);
   const [windowPosBeforeMaximize, setWindowPosBeforeMaximize] =
@@ -166,7 +167,9 @@ export function Window(props: WindowUIProps) {
         gridTemplateRows: "auto 1fr",
         gridTemplateColumns: "1fr",
         ...props.style,
-        transitionDuration: animateFlag ? `${windowTransitionTime}ms` : "0ms",
+        transitionDuration: animateFlag
+          ? `${windowTransitionDuration}ms`
+          : "0ms",
       }}
       onResize={(_e, _dir, ref, _delta, position) => {
         setWindowPos({
@@ -224,11 +227,7 @@ export function Window(props: WindowUIProps) {
       bounds="parent"
       cancel={cancelSelector(wsId, id)}
     >
-      {minimize ? (
-        <div style={{ transform: "scale(0)" }}>provider</div>
-      ) : (
-        provider
-      )}
+      {memorySavingMode && minimize ? <></> : provider}
     </Rnd>
   );
   return rnd;

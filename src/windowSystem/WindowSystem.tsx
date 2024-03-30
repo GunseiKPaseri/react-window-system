@@ -29,7 +29,8 @@ type WindowSystemProps = {
   Window?: (props: WindowUIProps) => JSX.Element;
   TaskBar?: (props: React.HTMLAttributes<HTMLUListElement>) => JSX.Element;
   onWindowChange?: (windows: WindowAttr[]) => void;
-  windowTransitionTime?: number;
+  windowTransitionDuration?: number;
+  memorySavingMode?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 function BigWindowSuggester(
@@ -65,7 +66,8 @@ export function WindowSystem(props: WindowSystemProps) {
     Window = DefaultWindow,
     TaskBar = DefaultTaskBar,
     onWindowChange,
-    windowTransitionTime = defaultTransitionTime,
+    windowTransitionDuration = defaultTransitionTime,
+    memorySavingMode = true,
     ...windowAreaProps
   } = props;
   const [layerQueue, setLayerQueue] = useState<string[]>([]);
@@ -109,9 +111,10 @@ export function WindowSystem(props: WindowSystemProps) {
       value={{
         layerQueue,
         wsId,
-        windowTransitionTime,
+        windowTransitionDuration,
         windowAreaNode: windowAreaNodeRef.current,
         windowProviderNode: windowProviderNodeRef.current,
+        memorySavingMode,
       }}
     >
       <div

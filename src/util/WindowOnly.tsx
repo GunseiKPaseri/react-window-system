@@ -31,7 +31,8 @@ export function WindowOnly(props: WindowOnlyProps) {
         wsId,
         windowAreaNode: windowAreaNodeRef.current,
         windowProviderNode: windowProviderNodeRef.current,
-        windowTransitionTime: 100,
+        windowTransitionDuration: 100,
+        memorySavingMode: true,
       }}
     >
       <div
