@@ -12,20 +12,19 @@ export type WindowSystemControler = {
   changeWindowExpAttrWithLayer: (state: Partial<WindowExpAttr>) => void;
   activateWindow: () => void;
   closeWindow: () => void;
-  maximizeWindow: () => void;
+  maximizeWindow: (newMaximize?: BigWindow) => void;
   minimizeWindow: () => void;
   hideWindow: () => void;
 };
 
 type WindowPos = NonNullable<RndProps["default"]>;
 
-type WindowState = {
+export type WindowState = {
   windowPos: WindowPos;
-  setWindowPos: (windowPos: WindowPos) => void;
+  setWindowPos: (windowPos: WindowPos & { dragging?: boolean }) => void;
   isDragging: boolean;
   setIsDragging: (isDragging: boolean) => void;
   windowPosBeforeMaximize: WindowPos;
-  setWindowPosBeforeMaximize: (windowPos: WindowPos) => void;
 };
 
 type WindowContextType = WindowExpAttrWithLayer &

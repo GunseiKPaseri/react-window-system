@@ -160,13 +160,16 @@ export function WindowSystem(props: WindowSystemProps) {
                   windows.filter((w) => !windowExpAttr[w.id]?.closed),
                 );
               }}
-              maximizeWindow={() => {
+              maximizeWindow={(newMaximize?: BigWindow) => {
+                const maximize =
+                  newMaximize ??
+                  (windowExpAttr[w.id]?.maximize ? false : "full");
                 setLayerQueue((layerQueue) => bringToFront(layerQueue, w.id));
                 setWindowExpAttr((windowExpAttr) => ({
                   ...windowExpAttr,
                   [w.id]: {
                     ...getdefaultWindowExpAttr(windowExpAttr, w),
-                    maximize: windowExpAttr?.[w.id]?.maximize ? false : "full",
+                    maximize,
                   },
                 }));
               }}

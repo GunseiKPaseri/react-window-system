@@ -61,7 +61,6 @@ export function Window(props: RndProps) {
     setIsDragging,
     windowPosBeforeMaximize,
     setWindowPos,
-    setWindowPosBeforeMaximize,
   } = useWindow();
   if (minimize) return <></>;
   const isWindowFixed = !(maximize === false || minimize);
@@ -77,7 +76,7 @@ export function Window(props: RndProps) {
       windowRef.current?.updateSize(windowPosBeforeMaximize);
       return;
     }
-    const custom = bigWindowSizeAsNum({
+    const maximizedSize = bigWindowSizeAsNum({
       bigWindow: maximize,
       parentWidth: windowAreaNode?.clientWidth ?? 0,
       parentHeight: windowAreaNode?.clientHeight ?? 0,
@@ -85,8 +84,8 @@ export function Window(props: RndProps) {
     });
     if (!windowRef.current) return;
 
-    windowRef.current.updatePosition(custom);
-    windowRef.current.updateSize(custom);
+    windowRef.current.updatePosition(maximizedSize);
+    windowRef.current.updateSize(maximizedSize);
   }, [maximize, minimize, windowAreaNode, windowPosBeforeMaximize]);
   return (
     <Rnd
@@ -106,6 +105,7 @@ export function Window(props: RndProps) {
           ...windowPos,
           width: ref.style.width,
           height: ref.style.height,
+          dragging: true,
         });
       }}
       onResizeStop={(_e, _d, ref) => {
@@ -117,10 +117,9 @@ export function Window(props: RndProps) {
       }}
       onDragStart={() => {
         setIsDragging(true);
-        setWindowPosBeforeMaximize(windowPos);
       }}
       onDrag={(_e, dir) => {
-        setWindowPos({ ...windowPos, x: dir.x, y: dir.y });
+        setWindowPos({ ...windowPos, x: dir.x, y: dir.y, dragging: true });
         if (windowAreaNode === null) return;
         const position = dragPosition({
           top: dir.y,
@@ -182,15 +181,7 @@ function MinimizeButton(props: React.HTMLAttributes<HTMLButtonElement>) {
 }
 
 function MaximizeButton(props: React.HTMLAttributes<HTMLButtonElement>) {
-  const {
-    maximizeWindow,
-    id,
-    wsId,
-    isDragging,
-    maximize,
-    setWindowPos,
-    windowPosBeforeMaximize,
-  } = useWindow();
+  const { maximizeWindow, id, wsId, isDragging } = useWindow();
   return (
     <button
       {...props}
@@ -198,9 +189,6 @@ function MaximizeButton(props: React.HTMLAttributes<HTMLButtonElement>) {
       id={`${wsId}-window-${id}-maximizebutton`}
       onClick={() => {
         if (isDragging) return;
-        if (maximize !== false) {
-          setWindowPos(windowPosBeforeMaximize);
-        }
         maximizeWindow();
       }}
       style={{
