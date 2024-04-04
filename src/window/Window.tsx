@@ -4,7 +4,7 @@ import { Rnd } from "react-rnd";
 import { bigWindowSizeAsNum } from "../util";
 import { useWindowSystemState } from "../windowSystem/WindowSystemProvider";
 import type { BigWindow, WindowUIProps } from "../windowSystem/type";
-import { WindowContext, type WindowState, useWindow } from "./windowcontext";
+import { WindowContext, type WindowPos, useWindow } from "./windowcontext";
 
 const cancelSelector = (wsId: string, id: string) => {
   const escapeWsId = CSS.escape(wsId);
@@ -61,6 +61,7 @@ export function Window(props: WindowUIProps) {
   } = ctrl ?? {};
   const { windowAreaNode, wsId, windowTransitionDuration, memorySavingMode } =
     useWindowSystemState();
+  // allow animation
   const [animateFlag, setAnimateFlag] = useState(false);
   const [prevMinimize, setPrevMinimize] = useState(minimize);
   if (minimize !== prevMinimize) {
@@ -75,6 +76,7 @@ export function Window(props: WindowUIProps) {
       return () => clearTimeout(timeoutId);
     }
   }, [animateFlag, windowTransitionDuration]);
+  // maximize & minimize
   const [isDragging, setIsDragging] = useState(false);
   const [windowPos, setWindowPosCore] = useState(defaultWindowPos);
   const [windowPosBeforeMaximize, setWindowPosBeforeMaximize] =
@@ -99,16 +101,18 @@ export function Window(props: WindowUIProps) {
     minimizeWindowCore();
     setAnimateFlag(true);
   };
-  const setWindowPos: WindowState["setWindowPos"] = (props) => {
-    const { dragging, ...newWindowPos } = props;
-    if (!dragging) {
-      setWindowPosBeforeMaximize(newWindowPos);
-    }
-    setWindowPosCore(newWindowPos);
-  };
+  const setWindowPos: (windowPos: WindowPos & { dragging?: boolean }) => void =
+    (props) => {
+      const { dragging, ...newWindowPos } = props;
+      if (!dragging) {
+        setWindowPosBeforeMaximize(newWindowPos);
+      }
+      setWindowPosCore(newWindowPos);
+    };
   const isWindowFixed = !(maximize === false || minimize);
   const windowRef = useRef<Rnd>(null);
   useEffect(() => {
+    // minimize & maximize effect
     if (minimize) {
       windowRef.current?.updatePosition({
         x: (windowAreaNode?.clientWidth ?? 0) / 2,
@@ -145,9 +149,7 @@ export function Window(props: WindowUIProps) {
         closeWindow,
         hideWindow,
         isDragging,
-        setIsDragging,
         windowPos,
-        setWindowPos,
         windowPosBeforeMaximize,
         windowNode: windowRef.current,
       }}
@@ -155,7 +157,7 @@ export function Window(props: WindowUIProps) {
       {children}
     </WindowContext.Provider>
   );
-  const rnd = (
+  return (
     <Rnd
       ref={windowRef}
       {...RndProps}
@@ -230,7 +232,6 @@ export function Window(props: WindowUIProps) {
       {memorySavingMode && minimize ? <></> : provider}
     </Rnd>
   );
-  return rnd;
 }
 
 function MinimizeButton(props: React.HTMLAttributes<HTMLButtonElement>) {

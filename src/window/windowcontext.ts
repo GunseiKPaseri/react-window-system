@@ -17,13 +17,11 @@ export type WindowSystemControler = {
   hideWindow: () => void;
 };
 
-type WindowPos = NonNullable<RndProps["default"]>;
+export type WindowPos = NonNullable<RndProps["default"]>;
 
 export type WindowState = {
   windowPos: WindowPos;
-  setWindowPos: (windowPos: WindowPos & { dragging?: boolean }) => void;
   isDragging: boolean;
-  setIsDragging: (isDragging: boolean) => void;
   windowPosBeforeMaximize: WindowPos;
   windowNode: Rnd | null;
 };
@@ -40,7 +38,7 @@ export const useWindow = () => {
   const windowSystemContext = useWindowSystemState();
   const windowContext = useContext(WindowContext);
   if (!windowContext) {
-    throw new Error("useWindow must be used within a Window");
+    throw new Error("useWindow must be used within a <Window />");
   }
   return { ...windowContext, ...windowSystemContext };
 };

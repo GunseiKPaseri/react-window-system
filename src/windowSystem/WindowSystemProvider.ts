@@ -16,7 +16,9 @@ export const WindowSystemContext = createContext<
 export const useWindowSystemState = () => {
   const context = useContext(WindowSystemContext);
   if (!context) {
-    throw new Error("useWindow must be used within a WindowSystem");
+    throw new Error(
+      "useWindowSystemState must be used within a <WindowSystem />",
+    );
   }
   return context;
 };
