@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { DefaultTaskBar } from "../default/DefaultTaskBar";
 import { DefaultWindow } from "../default/DefaultWindow";
@@ -78,9 +78,20 @@ export function WindowSystem(props: WindowSystemProps) {
   >({});
 
   const wsId = useId();
-  const existWindows = windows.filter((w) => !windowExpAttr[w.id]?.closed);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // 表示されているウィンドウのみを抽出
   useEffect(() => {
+    // 不用なウィンドウの廃棄
+    const windowIds = windows.map((w) => w.id);
+    setWindowExpAttr((windowExpAttr) =>
+      Object.fromEntries(
+        Object.entries(windowExpAttr).filter((x) => windowIds.includes(x[0])),
+      ),
+    );
+  }, [windows])
+  const existWindows = useMemo(() => windows.filter((w) => !windowExpAttr[w.id]?.closed), [windows, windowExpAttr]);
+  
+  useEffect(() => {
+    // 追加されたウィンドウを最前面に持ってくる
     const { updatedLayerQueue, updated } = updateLayerQueue(
       layerQueue,
       existWindows,
@@ -88,13 +99,8 @@ export function WindowSystem(props: WindowSystemProps) {
     if (updated) {
       setLayerQueue(updatedLayerQueue);
     }
-    const windowIds = windows.map((w) => w.id);
-    setWindowExpAttr((windowExpAttr) =>
-      Object.fromEntries(
-        Object.entries(windowExpAttr).filter((x) => windowIds.includes(x[0])),
-      ),
-    );
-  }, [windows, layerQueue]);
+  }, [layerQueue, existWindows]);
+
 
   // calculate layer
   const windowExpAttrWithLayer = calcLayerIndex(
