@@ -165,6 +165,7 @@ export function Window(props: WindowUIProps) {
       disableDragging={isWindowFixed}
       enableResizing={!isWindowFixed}
       style={{
+        userSelect: window.isActive ? "auto" : "none",
         display: minimize && !animateFlag ? "none" : "grid",
         gridTemplateRows: "auto 1fr",
         gridTemplateColumns: "1fr",
