@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useKey } from "react-use";
 
 import { DefaultTaskBar } from "../default/DefaultTaskBar";
 import { DefaultWindow } from "../default/DefaultWindow";
@@ -31,6 +32,7 @@ type WindowSystemProps = {
   onWindowChange?: (windows: WindowAttr[]) => void;
   windowTransitionDuration?: number;
   memorySavingMode?: boolean;
+  shortcutKey?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 function BigWindowSuggester(
@@ -68,6 +70,7 @@ export function WindowSystem(props: WindowSystemProps) {
     onWindowChange,
     windowTransitionDuration = defaultTransitionTime,
     memorySavingMode = true,
+    shortcutKey = true,
     ...windowAreaProps
   } = props;
   const [layerQueue, setLayerQueue] = useState<string[]>([]);
@@ -87,9 +90,12 @@ export function WindowSystem(props: WindowSystemProps) {
         Object.entries(windowExpAttr).filter((x) => windowIds.includes(x[0])),
       ),
     );
-  }, [windows])
-  const existWindows = useMemo(() => windows.filter((w) => !windowExpAttr[w.id]?.closed), [windows, windowExpAttr]);
-  
+  }, [windows]);
+  const existWindows = useMemo(
+    () => windows.filter((w) => !windowExpAttr[w.id]?.closed),
+    [windows, windowExpAttr],
+  );
+
   useEffect(() => {
     // 追加されたウィンドウを最前面に持ってくる
     const { updatedLayerQueue, updated } = updateLayerQueue(
@@ -101,7 +107,6 @@ export function WindowSystem(props: WindowSystemProps) {
     }
   }, [layerQueue, existWindows]);
 
-
   // calculate layer
   const windowExpAttrWithLayer = calcLayerIndex(
     layerQueue,
@@ -111,6 +116,33 @@ export function WindowSystem(props: WindowSystemProps) {
 
   const windowAreaNodeRef = useRef<HTMLDivElement>(null);
   const windowProviderNodeRef = useRef<HTMLDivElement>(null);
+
+  // shift+tabで前ウィンドウに切り替え
+  useKey(
+    (e) => e.key === "Tab" && e.shiftKey,
+    (e) => {
+      if (shortcutKey === false) return;
+      e.preventDefault();
+      setLayerQueue((layer) => {
+        if (layer.length === 0) return layer;
+        const prev = layer[layer.length - 1];
+        return [prev, ...layer.slice(0, -1)];
+      });
+    },
+  );
+  // tabで次ウィンドウに切り替え
+  useKey(
+    (e) => e.key === "Tab",
+    (e) => {
+      if (shortcutKey === false) return;
+      e.preventDefault();
+      setLayerQueue((layer) => {
+        if (layer.length === 0) return layer;
+        const [next, ...other] = layer;
+        return [...other, next];
+      });
+    },
+  );
 
   return (
     <WindowSystemContext.Provider

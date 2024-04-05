@@ -43,6 +43,7 @@ function App() {
   ]);
   const [count, setCount] = useState(2);
   const [memorySavingMode, setMemorySavingMode] = useState(false);
+  const [shortcutKey, setShortcutKey] = useState(true);
 
   return (
     <>
@@ -62,6 +63,10 @@ function App() {
         />
         Saving Mode
       </label>
+      <label>
+        <input type="checkbox" onChange={() => setShortcutKey((v) => !v)} />
+        Shortcut Key
+      </label>
       <WindowSystem
         windows={windows}
         style={{
@@ -69,6 +74,7 @@ function App() {
           height: 500,
         }}
         memorySavingMode={memorySavingMode}
+        shortcutKey={shortcutKey}
       />
     </>
   );
