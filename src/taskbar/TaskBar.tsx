@@ -18,12 +18,12 @@ function TaskList(
   );
 }
 
+function Icon(props: React.HTMLAttributes<HTMLDivElement>) {
+  return <div {...props} style={{ ...props.style }} />;
+}
+
 function Body(props: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div {...props} style={{ flex: 1, ...props.style }}>
-      {}
-    </div>
-  );
+  return <div {...props} style={{ flex: 1, ...props.style }} />;
 }
 
 function TaskClose(props: React.HTMLAttributes<HTMLButtonElement>) {
@@ -55,6 +55,7 @@ export function TaskBar(props: React.HTMLAttributes<HTMLUListElement>) {
   );
 }
 
+TaskList.Icon = Icon;
 TaskList.Body = Body;
 TaskList.Close = TaskClose;
 TaskBar.List = TaskList;

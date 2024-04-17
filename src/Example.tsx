@@ -22,7 +22,7 @@ const WindowBody = () => {
   );
 };
 
-const makeWindow = (id: number) => {
+const makeWindow = (id: number): WindowAttr => {
   return {
     id: `${Math.random()}`,
     defaultWindowPos: {
@@ -31,6 +31,8 @@ const makeWindow = (id: number) => {
       height: 200,
       width: 200,
     },
+    title: `タイトル${id}`,
+    icon: <span>{Math.random() > 0.5 ? "🍓" : "🍌"}</span>,
     header: <strong>{`へっだ${id}`}</strong>,
     body: <WindowBody />,
   };
@@ -59,12 +61,17 @@ function App() {
       <label>
         <input
           type="checkbox"
+          checked={memorySavingMode}
           onChange={() => setMemorySavingMode((v) => !v)}
         />
         Saving Mode
       </label>
       <label>
-        <input type="checkbox" onChange={() => setShortcutKey((v) => !v)} />
+        <input
+          type="checkbox"
+          checked={shortcutKey}
+          onChange={() => setShortcutKey((v) => !v)}
+        />
         Shortcut Key
       </label>
       <WindowSystem

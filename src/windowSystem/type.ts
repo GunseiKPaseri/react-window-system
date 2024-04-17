@@ -6,7 +6,9 @@ import type { WindowSystemControler } from "../window/windowcontext";
 export type WindowAttr = {
   id: string;
   defaultWindowPos: NonNullable<RndProps["default"]>;
-  header: ReactNode;
+  icon: ReactNode;
+  title: string;
+  header?: ReactNode;
   body: ReactNode;
 };
 

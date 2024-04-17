@@ -299,6 +299,26 @@ function Title(props: React.HTMLAttributes<HTMLDivElement>) {
   return <div {...props} style={{ flex: 1, ...props.style }} />;
 }
 
+function Icon(
+  props: { children: ReactNode } & React.HTMLAttributes<HTMLDivElement>,
+) {
+  return (
+    <div
+      {...props}
+      style={{
+        width: 24,
+        height: 24,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        ...props.style,
+      }}
+    >
+      {props.children}
+    </div>
+  );
+}
+
 function Header(
   props: { children: ReactNode } & React.HTMLAttributes<HTMLDivElement>,
 ) {
@@ -317,6 +337,7 @@ function Header(
   );
 }
 
+Header.Icon = Icon;
 Header.Title = Title;
 Header.MaximizeButton = MaximizeButton;
 Header.CloseButton = CloseButton;

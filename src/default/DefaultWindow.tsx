@@ -18,12 +18,13 @@ export const DefaultWindow = (props: WindowUIProps) => {
           backgroundColor: window.isActive ? "#99f" : "#ccf",
         }}
       >
+        <Window.TitleBar.Icon>{window.icon}</Window.TitleBar.Icon>
         <Window.TitleBar.Title
           style={{
             paddingLeft: 4,
           }}
         >
-          {window.header}
+          {window.header ?? window.title}
         </Window.TitleBar.Title>
         <Window.TitleBar.MinimizeButton>_</Window.TitleBar.MinimizeButton>
         <Window.TitleBar.MaximizeButton>

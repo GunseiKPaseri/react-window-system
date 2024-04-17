@@ -117,9 +117,9 @@ export function WindowSystem(props: WindowSystemProps) {
   const windowAreaNodeRef = useRef<HTMLDivElement>(null);
   const windowProviderNodeRef = useRef<HTMLDivElement>(null);
 
-  // shift+tabで前ウィンドウに切り替え
+  // [shift]+[→]で前ウィンドウに切り替え
   useKey(
-    (e) => e.key === "Tab" && e.shiftKey,
+    (e) => e.shiftKey && e.key === "ArrowRight",
     (e) => {
       if (shortcutKey === false) return;
       e.preventDefault();
@@ -130,9 +130,9 @@ export function WindowSystem(props: WindowSystemProps) {
       });
     },
   );
-  // tabで次ウィンドウに切り替え
+  // [shift]+[←]で次ウィンドウに切り替え
   useKey(
-    (e) => e.key === "Tab",
+    (e) => e.shiftKey && e.key === "ArrowLeft",
     (e) => {
       if (shortcutKey === false) return;
       e.preventDefault();
