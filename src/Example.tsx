@@ -72,7 +72,7 @@ function App() {
           checked={shortcutKey}
           onChange={() => setShortcutKey((v) => !v)}
         />
-        Shortcut Key
+        Shortcut Key ([Shift] + [←,→])
       </label>
       <WindowSystem
         windows={windows}
