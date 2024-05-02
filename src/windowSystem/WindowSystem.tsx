@@ -225,7 +225,7 @@ export function WindowSystem(props: WindowSystemProps) {
                     ...windowExpAttr,
                     [w.id]: {
                       ...getdefaultWindowExpAttr(windowExpAttr, w),
-                      minimize: windowExpAttr[w.id]?.minimize ? false : true,
+                      minimize: !windowExpAttr[w.id]?.minimize,
                     },
                   }));
                 },
